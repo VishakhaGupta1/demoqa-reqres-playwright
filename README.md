@@ -13,7 +13,7 @@ This project implements two end-to-end automation flows using **Playwright with 
 
 > **Note:** User registration on DemoQA is performed **manually** and is not automated by this project.
 
-1. Navigate directly to the Book Store login page (`/login`).
+1. Navigate to the DemoQA Book Store application and log in using a manually created user.
 2. Login using manually registered DemoQA credentials (stored in `.env`).
 3. Validate the expected username is displayed on the profile page.
 4. Navigate to the Book Store screen via the "Go To Book Store" button.
@@ -30,7 +30,7 @@ This project implements two end-to-end automation flows using **Playwright with 
 
 ## Automated API Flow
 
-Uses **ReqRes persistent Collections** (instead of the legacy `/api/users` fixture APIs) so the create → get → update → delete lifecycle is truly persistent against a real scoped collection.
+Uses ReqRes Collections to create, retrieve, update, and clean up test data.
 
 Every request includes:
 - `x-api-key` header (Manage API key, never committed)
@@ -51,7 +51,7 @@ Flow:
 7. **PUT** an updated `name` + `job` on the same record.
 8. Validate HTTP **200 OK**, compare the updated fields in the response envelope, and confirm `response.data.id === userId`.
 9. **GET** the record again and validate the update **actually persisted** (defensive follow-up read — protects against echo-only verbs such as PATCH).
-10. **DELETE** the record as cleanup.
+10. **DELETE** the record as cleanup (additional best practice to avoid leaving test data).
 11. Validate DELETE returns **204 No Content**. Cleanup is wrapped in `try / finally` so it runs even if an earlier assertion fails.
 
 ---
@@ -194,7 +194,7 @@ Publisher: O'Reilly Media
 - **`test.step()` reporting** — every logical phase of the UI and API flow is a named step that renders correctly in the HTML report.
 - **Semantic Playwright locators** — prefers `getByRole()`, `getByLabel()`, and stable element IDs over brittle classname/XPath queries.
 - **Playwright `APIRequestContext`** — native Playwright HTTP client. No `axios`/`fetch`. Shares headers + baseURL across all five API steps.
-- **Follow-up GET after PUT** — never trusts a write-response echo as proof of persistence. Re-reads the record defensively. (In ReqRes collections, PATCH returns 200 but never persists — only PUT is safe.)
+- **Follow-up GET after PUT** — verifies that the update was successfully persisted.
 - **`finally` DELETE cleanup** — test data is always removed, even if a mid-flow assertion fails.
 - **Screenshot on failure** — `playwright.config.js` sets `screenshot: 'only-on-failure'`.
 - **Trace on first retry** — `playwright.config.js` sets `trace: 'on-first-retry'`.
