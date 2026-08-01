@@ -211,6 +211,4 @@ Publisher: O'Reilly Media
 
 ---
 
-## Author
 
-Vishakha Gupta
