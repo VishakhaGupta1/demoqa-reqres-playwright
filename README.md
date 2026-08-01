@@ -2,63 +2,65 @@
 
 ## Assignment Overview
 
-This project implements two end-to-end automation flows using **Playwright with JavaScript** and the **Page Object Model (POM)** design pattern:
+This project implements the required UI and API automation scenarios using **Playwright with JavaScript** and follows the **Page Object Model (POM)** design pattern.
 
-1. **DemoQA Book Store UI automation** — logs in, searches a book, extracts its details, saves them to a text file, and logs out.
-2. **ReqRes persistent collection API automation** — creates a user record, reads it back, updates it with PUT (not PATCH), re-reads it to confirm persistence, and deletes it for cleanup.
+The assignment includes:
+
+- DemoQA Book Store UI automation
+- ReqRes API automation
+- Environment-based configuration using `.env`
+- Playwright HTML reporting
 
 ---
 
 ## Automated UI Flow
 
-> **Note:** User registration on DemoQA is performed **manually** and is not automated by this project.
+> **Note:** User registration on DemoQA is performed manually and is not automated by this project.
 
-1. Navigate to the DemoQA Book Store application and log in using a manually created user.
-2. Login using manually registered DemoQA credentials (stored in `.env`).
-3. Validate the expected username is displayed on the profile page.
-4. Navigate to the Book Store screen via the "Go To Book Store" button.
-5. Search the book catalog for: **`Learning JavaScript Design Patterns`**.
-6. Validate the search result contains the exact book (single matching row).
-7. Extract three fields from the UI:
-   - **Title**
-   - **Author**
-   - **Publisher**
-8. Write the three values into `output/book_details.txt` in the exact required format.
-9. Logout and confirm the login page is displayed again.
+1. Navigate to **https://demoqa.com/**.
+2. Navigate to the **Book Store Application**.
+3. Login using a manually created DemoQA user.
+4. Validate the logged-in username and **Logout** button.
+5. Click **Go To Book Store**.
+6. Search for **Learning JavaScript Design Patterns**.
+7. Validate that the search result contains the book.
+8. Read the **Title**, **Author**, and **Publisher** from the UI.
+9. Write the extracted values to `output/book_details.txt`.
+10. Logout and verify the login page is displayed again.
 
 ---
 
 ## Automated API Flow
 
-Uses ReqRes Collections to create, retrieve, update, and clean up test data.
-
-Every request includes:
-- `x-api-key` header (Manage API key, never committed)
-- `X-Reqres-Env` header
-- `Content-Type: application/json`
-- `?project_id=<id>` query parameter
-
-Secrets are stored in `.env` and never committed (`.gitignore`).
+The API automation uses **ReqRes Collections** to perform a complete create, retrieve, update, and cleanup flow.
 
 Flow:
 
-1. **POST** a new user record to the collection.
+1. Create a user record.
 2. Validate HTTP **201 Created**.
-3. Store the returned record `id` in `userId`.
-4. Validate the echoed envelope contains the expected `name` / `job`.
-5. **GET** the record by `userId`.
-6. Validate HTTP **200 OK** and compare `name` / `job` against the created values.
-7. **PUT** an updated `name` + `job` on the same record.
-8. Validate HTTP **200 OK**, compare the updated fields in the response envelope, and confirm `response.data.id === userId`.
-9. **GET** the record again and validate the update **actually persisted** (defensive follow-up read — protects against echo-only verbs such as PATCH).
-10. **DELETE** the record as cleanup (additional best practice to avoid leaving test data).
-11. Validate DELETE returns **204 No Content**. Cleanup is wrapped in `try / finally` so it runs even if an earlier assertion fails.
+3. Store the returned **userId**.
+4. Fetch the created user.
+5. Validate the returned user details.
+6. Update the user's name.
+7. Validate the update response.
+8. Fetch the user again to verify the update was persisted.
+9. Delete the created record as cleanup.
+10. Validate **204 No Content** for the cleanup request.
+
+Every request includes:
+
+- `x-api-key`
+- `X-Reqres-Env`
+- `Content-Type: application/json`
+- `project_id` query parameter
+
+Secrets are stored in `.env` and are never committed.
 
 ---
 
 ## Project Structure
 
-```
+```text
 auto/
 ├── pages/
 │   ├── LoginPage.js
@@ -79,7 +81,8 @@ auto/
 └── README.md
 ```
 
-Intentionally not listed (gitignored or generated):
+Generated or ignored files:
+
 - `node_modules/`
 - `.browsers/`
 - `.env`
@@ -90,12 +93,12 @@ Intentionally not listed (gitignored or generated):
 
 ## Prerequisites
 
-- **Node.js** (LTS recommended)
-- **npm** (ships with Node.js)
-- A **manually registered DemoQA user** (do NOT automate registration)
-- A **ReqRes project** with persistent collections enabled
-- A ReqRes collection named `users` with string fields `name` and `job`
-- A ReqRes **Manage API key** (not the public read-only key)
+- Node.js (LTS recommended)
+- npm
+- A manually created DemoQA user
+- A ReqRes project with Collections enabled
+- A ReqRes collection named `users`
+- ReqRes Manage API Key
 
 ---
 
@@ -106,24 +109,24 @@ npm install
 npx playwright install chromium
 ```
 
-This project pins Playwright browsers to a project-local `.browsers` folder. The path is resolved inside `playwright.config.js` via
-`process.env.PLAYWRIGHT_BROWSERS_PATH = path.join(__dirname, '.browsers')` (set **before** `require('@playwright/test')`), so test commands always find the correct binary even if `PLAYWRIGHT_BROWSERS_PATH` was set only temporarily during install.
+The project uses a local Playwright browser directory configured in `playwright.config.js`.
 
 ---
 
 ## Environment Setup
 
-Copy the template and fill in your real values locally:
+Create a local `.env` file:
 
 ```bash
 cp .env.example .env
 ```
 
-Then populate `.env`:
+Populate it with:
 
-```
+```text
 DEMOQA_USERNAME=
 DEMOQA_PASSWORD=
+
 REQRES_API_KEY=
 REQRES_BASE_URL=https://reqres.in
 REQRES_COLLECTION=users
@@ -131,31 +134,31 @@ REQRES_ENV=prod
 REQRES_PROJECT_ID=
 ```
 
-**Never commit `.env`.** It is listed in `.gitignore`.
+> **Note:** `.env` is ignored through `.gitignore` and should never be committed.
 
 ---
 
 ## Running Tests
 
-Run all tests (UI + API):
+Run all tests:
 
 ```bash
-npx playwright test --project=chromium
+npm test -- --project=chromium
 ```
 
-Run UI only:
+Run UI tests:
 
 ```bash
-npx playwright test tests/ui.spec.js --project=chromium
+npm run test:ui
 ```
 
-Run API only:
+Run API tests:
 
 ```bash
-npx playwright test tests/api.spec.js --project=chromium
+npm run test:api
 ```
 
-Run headed (watch the browser):
+Run headed:
 
 ```bash
 npx playwright test --headed --project=chromium
@@ -165,21 +168,31 @@ npx playwright test --headed --project=chromium
 
 ## Test Report
 
-Open the last Playwright HTML report:
+Generate or open the Playwright HTML report:
+
+```bash
+npm run report
+```
+
+or
 
 ```bash
 npx playwright show-report
 ```
 
-Report is generated inside `playwright-report/`. A screenshot of the final HTML report should be included as part of the assignment submission.
-
 ---
 
 ## Output File
 
-After a successful UI run, `output/book_details.txt` is written with the following exact contents:
+After a successful UI execution, the following file is generated:
 
+```text
+output/book_details.txt
 ```
+
+Contents:
+
+```text
 Title: Learning JavaScript Design Patterns
 Author: Addy Osmani
 Publisher: O'Reilly Media
@@ -189,26 +202,23 @@ Publisher: O'Reilly Media
 
 ## Design Highlights
 
-- **Page Object Model (POM)** — each screen is a dedicated JS class (`LoginPage`, `ProfilePage`, `BookStorePage`). Selectors live in constructors; actions live as async methods. Tests read as plain English.
-- **Environment-based secret management** — `dotenv` loads credentials at startup; no strings are hard-coded into specs or Page Objects.
-- **`test.step()` reporting** — every logical phase of the UI and API flow is a named step that renders correctly in the HTML report.
-- **Semantic Playwright locators** — prefers `getByRole()`, `getByLabel()`, and stable element IDs over brittle classname/XPath queries.
-- **Playwright `APIRequestContext`** — native Playwright HTTP client. No `axios`/`fetch`. Shares headers + baseURL across all five API steps.
-- **Follow-up GET after PUT** — verifies that the update was successfully persisted.
-- **`finally` DELETE cleanup** — test data is always removed, even if a mid-flow assertion fails.
-- **Screenshot on failure** — `playwright.config.js` sets `screenshot: 'only-on-failure'`.
-- **Trace on first retry** — `playwright.config.js` sets `trace: 'on-first-retry'`.
+- Page Object Model (POM)
+- Playwright with JavaScript
+- Environment variable based configuration
+- Playwright `test.step()` for readable execution
+- Semantic Playwright locators (`getByRole`, IDs)
+- Native `APIRequestContext` for API automation
+- Follow-up GET validation after update
+- Automatic cleanup using DELETE
+- Screenshot on failure
+- Trace on first retry
 
 ---
 
 ## Test Results
 
 | Suite | Result |
-|---|---|
-| UI test (`tests/ui.spec.js`) | **Passed** |
-| API test (`tests/api.spec.js`) | **Passed** |
-| Full run (`--project=chromium`) | **2 passed** |
-
----
-
-
+|-------|--------|
+| UI Test (`tests/ui.spec.js`) | Passed |
+| API Test (`tests/api.spec.js`) | Passed |
+| Full Suite | **2 Passed** |
