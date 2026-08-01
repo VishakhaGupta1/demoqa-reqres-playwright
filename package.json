@@ -1,5 +1,5 @@
 {
-  "name": "auto",
+  "name": "demoqa-reqres-playwright",
   "version": "1.0.0",
   "description": "Playwright JavaScript UI and API automation assignment for DemoQA and ReqRes",
   "main": "index.js",
