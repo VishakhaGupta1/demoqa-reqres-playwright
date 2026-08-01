@@ -1,13 +1,22 @@
 {
   "name": "auto",
   "version": "1.0.0",
-  "description": "",
+  "description": "Playwright JavaScript UI and API automation assignment for DemoQA and ReqRes",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "playwright test",
+    "test:ui": "playwright test tests/ui.spec.js --project=chromium",
+    "test:api": "playwright test tests/api.spec.js --project=chromium",
+    "report": "playwright show-report"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "playwright",
+    "javascript",
+    "automation",
+    "api-testing",
+    "ui-testing"
+  ],
+  "author": "Vishakha Gupta",
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.62.1",
