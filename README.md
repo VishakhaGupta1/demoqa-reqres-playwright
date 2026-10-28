@@ -1,6 +1,5 @@
 # Playwright JavaScript Automation Assignment
 
-## Assignment Overview
 
 This project implements the required UI and API automation scenarios using **Playwright with JavaScript** and follows the **Page Object Model (POM)** design pattern.
 
